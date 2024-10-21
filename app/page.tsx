@@ -1,13 +1,37 @@
 // app/page.tsx
+'use client';
+
+import { useState } from 'react';
+import { ethers } from 'ethers';
 
 export default function Home() {
+  const [account, setAccount] = useState<string | null>(null);
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        setAccount(userAddress);
+        console.log('Connected account:', userAddress);
+      } catch (err) {
+        console.log('Failed to connect wallet:', err);
+      }
+    } else {
+      alert('MetaMask is not installed. Please install it to use this feature.');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header Section */}
       <header className="flex justify-between items-center p-6 border-b">
         <h1 className="text-2xl font-semibold">ZK data-driven social dapp</h1>
-        <button className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-500 transition">
-          Connect
+        <button 
+          onClick={connectWallet}
+          className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-500 transition">
+          {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect'}
         </button>
       </header>
 
